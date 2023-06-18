@@ -40,15 +40,17 @@ class MessageSender(private val api: CommonMessageAPI, messageType: MessageType)
     private val isImageValid: Boolean
         get() = image != null
 
-    private val isValid: Boolean
-        get() = when (messageType) {
-            MessageType.TEXT -> isTextValid
-            MessageType.IMAGE -> isTextValid && isImageValid
-            MessageType.OFFICIAL -> false
-        }
+    private fun isValid(
+        messageType: MessageType,
+        image: Bitmap?,
+        text: String?
+    ): Boolean {
+        val messageInputValidator = MessageInputValidator(messageType, image, text)
+        return messageInputValidator.isValid
+    }
 
     fun send() {
-        if (!isValid) {
+        if (!isValid(messageType, image, text)) {
             delegate?.notifyInvalid()
             return
         }
